@@ -1,8 +1,7 @@
 /*
  * neuralnet.cpp
  *
- *  Created on: Apr 11, 2014
- *      Author: debian
+ *  The implementation of neural network class
  */
 
 #include "neuralnet.h"
@@ -220,4 +219,37 @@ inline void NeuralNet::set_input_layer(const vector<double> &input_layer)
 inline vector<double> NeuralNet::get_output_layer()
 {
 	return output_layer_;
+}
+
+void NeuralNet::feed_forward(const vector<double> &input_layer)
+{
+	// set up the input layer
+	set_input_layer(input_layer);
+
+	cout << " Setting up hidden layer from input layer ..." << endl;
+	for(int j = 0; j < hidden_num_; ++j)
+	{
+		hidden_layer_[j] = 0;
+		for(int i = 0; i <= input_num_; ++i)
+		{
+			hidden_layer_[j] += input_layer_[i] * input_hidden_w_[i][j];
+		}
+
+		hidden_layer_[j] = TransFunction(hidden_layer_[j]);
+	}
+
+	cout << " Setting up output layer from hidden layer ..." << endl;
+	for(int j =0; j < output_num_; ++j)
+	{
+		output_layer_[j] = 0;
+		for(int i = 0; i <= hidden_num_; ++i)
+		{
+			output_layer_[j] += hidden_layer_[i] * hidden_output_w_[i][j];
+		}
+
+		output_layer_[j] = TransFunction(output_layer_[j]);
+	}
+
+	cout << "Now the feed forward is done." << endl;
+
 }

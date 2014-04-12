@@ -1,8 +1,8 @@
 /*
  * neuralnet.h
+ * The main class for neural network model
  *
- *  Created on: Apr 11, 2014
- *      Author: debian
+ *
  */
 
 #ifndef NEURALNET_H_
@@ -44,6 +44,8 @@ public:
     bool load_weights(const string &input_filename);
     bool save_weights(const string &output_filename);
 
+    // feed forward propagate from input layer to output layer
+    void feed_forward(const vector<double> &input_layer);
 private:
 
 	// number of neurons in input, hidden, output layers
