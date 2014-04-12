@@ -1,5 +1,5 @@
 /*
- * TransFunction.h
+ * transfunction.h
  *
  *  Created on: Apr 11, 2014
  *      Author: debian

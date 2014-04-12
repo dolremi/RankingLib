@@ -27,6 +27,11 @@ input_num_(input_n), hidden_num_(hidden_n), output_num_(output_n), active_func_(
 
 	// set output values zeros
 	output_layer_.resize( output_num_ , 0 );
+
+	// set the delta for hidden layer and the output layer
+	delta_hidden_.resize( hidden_num_ + 1, 0);
+	delta_output_.resize( output_num_, 0);
+
 	cout << "Three layers have been setup." << endl;
 	// initialize the weights
 	initialize_weights();
@@ -221,6 +226,16 @@ inline vector<double> NeuralNet::get_output_layer()
 	return output_layer_;
 }
 
+vector<vector<double> > NeuralNet::get_input_hidden_d()
+{
+	return input_hidden_d_;
+}
+
+vector<vector<double> > NeuralNet::get_hidden_output_d()
+{
+	return hidden_output_d_;
+}
+
 void NeuralNet::feed_forward(const vector<double> &input_layer)
 {
 	// set up the input layer
@@ -235,7 +250,7 @@ void NeuralNet::feed_forward(const vector<double> &input_layer)
 			hidden_layer_[j] += input_layer_[i] * input_hidden_w_[i][j];
 		}
 
-		hidden_layer_[j] = TransFunction(hidden_layer_[j]);
+		hidden_layer_[j] = active_func_(hidden_layer_[j]);
 	}
 
 	cout << " Setting up output layer from hidden layer ..." << endl;
@@ -247,9 +262,88 @@ void NeuralNet::feed_forward(const vector<double> &input_layer)
 			output_layer_[j] += hidden_layer_[i] * hidden_output_w_[i][j];
 		}
 
-		output_layer_[j] = TransFunction(output_layer_[j]);
+		output_layer_[j] = active_func_(output_layer_[j]);
 	}
 
 	cout << "Now the feed forward is done." << endl;
 
+}
+
+void NeuralNet::error_grad_output_hidden()
+{
+	// The error gradient is calculated as delta = d(ActiveFunc)/d(totalInput) * input[i] = d(tranFunc)/d(w[i][j])
+	cout << " Calculate the error gradient from output layer to hidden layer ..." << endl;
+
+	for(int i = 0; i < output_num_; ++i)
+	{
+		delta_output_[i] = active_func_.derivative(output_layer_[i]);
+		for(int j = 0; j <= hidden_num_; ++j)
+		{
+	      	hidden_output_d_[j][i] = delta_output_[i] * hidden_layer_[j];
+		}
+	}
+}
+
+void NeuralNet::error_grad_hidden_input()
+{
+	// The error gradient is calculated as delta = d(ActiveFunc)/d(totalInput) * sum of weighted delta from hidden to output * w[i][j]
+	cout << " Calculate the error gradient from input layer to hidden layer ..." << endl;
+
+	// calculate the sum of weighted delta from the hidden to output layer
+	for(int i = 0; i <  hidden_num_; ++i)
+	{
+		delta_hidden_[i] = 0;
+		for(int j = 0; j < output_num_; ++j)
+		{
+		  	delta_hidden_[i] += hidden_output_w_[i][j] * delta_output_[j];
+		}
+
+		delta_hidden_[i] *= active_func_.derivative(hidden_layer_[i]);
+	}
+
+	// calculate the weight change from input to hidden layer
+	for(int i = 0 ; i <= input_num_; ++i)
+	{
+		for(int j = 0; j < hidden_num_; ++j)
+		{
+			input_hidden_d_[i][j] = input_layer_[i]* delta_hidden_[j];
+		}
+	}
+}
+
+// back propagation algorithm simply call two sub programs to calculate error gradient
+void NeuralNet::back_prop()
+{
+	cout << " Start back propagation ..." << endl;
+	error_grad_output_hidden();
+	error_grad_hidden_input();
+	cout << " The back propagation is done" << endl;
+}
+
+// update the weights from the internal deltas
+void NeuralNet::update_weights(double learn_rate)
+{
+	for(int i = 0; i <= input_num_; ++i)
+	{
+		for(int j = 0; j < hidden_num_; ++j)
+		{
+			input_hidden_w_[i][j] -= learn_rate * input_hidden_d_[i][j];
+		}
+	}
+
+	for(int i = 0; i <= hidden_num_; ++i)
+	{
+		for(int j = 0; j < output_num_; ++j)
+		{
+			hidden_output_w_[i][j] -= learn_rate * hidden_output_d_[i][j];
+		}
+	}
+}
+
+void NeuralNet::update_weights(vector<vector<double> > &in_hid_delta, vector<vector<double> > &hid_out_delta, double learn_rate)
+{
+	input_hidden_d_ = in_hid_delta;
+	hidden_output_d_ = hid_out_delta;
+
+	update_weights(learn_rate);
 }
