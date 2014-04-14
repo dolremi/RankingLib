@@ -7,13 +7,20 @@
 
 #include "listnetloss.h"
 
-ListNetLoss::ListNetLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &result): trained_net_(input_net),
+ListNetLoss::ListNetLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &result, bool simple): trained_net_(input_net),
 																												feature_lists_(feature_lists),
-	                                                                                                             results_(result)
+	                                                                                                             results_(result),
+	                                                                                                             if_simple_(simple)
 {
-	// set up the size of list of weight changes for each document
-	input_hidden_d_list_.resize(result.size());
-	hidden_output_d_list_.resize(result.size());
+	// check if it is a simple neural net and set up the vectors to store the weight changes
+	if(if_simple_)
+	{
+		input_output_d_list_.resize(result.size());
+	}
+	else{
+		input_hidden_d_list_.resize(result.size());
+		hidden_output_d_list_.resize(result.size());
+	}
 
 	for(int i = 0; i < results_.size(); ++i)
 	{

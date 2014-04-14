@@ -16,7 +16,7 @@ using std::vector;
 
 class ListNetLoss {
 public:
-	ListNetLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &results);
+	ListNetLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &results, bool simple);
 
 	virtual double operator()();
 	virtual double derivative();
@@ -41,6 +41,9 @@ protected:
 
 	// variable to store the sum of the exp(desired_score) or denominator of the top prob
 	double prob_denorm_;
+
+	// boolean variable to judge if it is a simple neural net (no hidden layer)
+	bool if_simple_;
 
 	// 1D vector to store the prob of ground truth for each document
 	vector<double> prob_list_;
