@@ -19,7 +19,7 @@ public:
 	ListNetLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &results, bool simple);
 
 	virtual double operator()();
-	virtual double derivative();
+	virtual void derivative();
 
 protected:
 	NeuralNet trained_net_;
@@ -33,14 +33,14 @@ protected:
     // 2D vectors to store the delta weights for simple neural net
 	vector<double> input_output_d_list_;
 
-	// A virtual function to calculate the probability
-	virtual double top_prob(int pos, vector<double> &denorm_list);
-
 	// A function to calculate the output score from Neural network for each document
-	void predict_score();
+	virtual void predict_score();
 
 	// variable to store the sum of the exp(desired_score) or denominator of the top prob
 	double prob_denorm_;
+
+	// variable to store the sum of results of neural net model
+	double pred_denorm_;
 
 	// boolean variable to judge if it is a simple neural net (no hidden layer)
 	bool if_simple_;
