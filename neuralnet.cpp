@@ -1,7 +1,8 @@
 /*
  * neuralnet.cpp
  *
- *  The implementation of neural network class
+ *  Created on: Apr 13, 2014
+ *      Author: debian
  */
 
 #include "neuralnet.h"
@@ -9,39 +10,33 @@
 using std::cout;
 using std::endl;
 using std::fstream;
-using std::vector;
 
-NeuralNet::NeuralNet(int input_n, int hidden_n, int output_n, TransFunction &tf):
-input_num_(input_n), hidden_num_(hidden_n), output_num_(output_n), active_func_(tf){
+NeuralNet::NeuralNet(int input_size, int hidden_size, int output_size, TransFunction &tf): BaseNet(input_size, tf),
+																						   hidden_num_(hidden_size),
+																						   output_num_(output_size){
 
-	cout << "input neurons No.\t hidden neurons No.\t output neurons No." << endl;
-	cout << "\t" << input_num_ << "\t" << hidden_num_ << "\t" << output_num_ << endl;
-	cout << "set up the input, hidden and output layers..." << endl;
-	// set input values zeros add one bias neuron with -1
-	input_layer_.resize( input_num_ + 1, 0 );
-	input_layer_[input_num_] = -1;
+		cout << "input neurons No.\t hidden neurons No.\t output neurons No." << endl;
+		cout << "\t" << input_num_ << "\t" << hidden_num_ << "\t" << output_num_ << endl;
+		cout << "set up the input, hidden and output layers..." << endl;
 
-	// set hidden values zeros add one bias neuron with -1
-	hidden_layer_.resize( hidden_num_ + 1, 0 );
-	hidden_layer_[hidden_num_] = -1;
+		// set hidden values zeros add one bias neuron with -1
+		hidden_layer_.resize( hidden_num_ + 1, 0 );
+		hidden_layer_[hidden_num_] = -1;
 
-	// set output values zeros
-	output_layer_.resize( output_num_ , 0 );
+
+}
+
+// Remember to call initialize_weights() after the class instantiation
+// each weight will assigned a small random number
+// each weight delta will be set to zero
+virtual void NeuralNet::initialize_weights()
+{
+	cout << "Now initialize the weights of full-size neural network..." << endl;
 
 	// set the delta for hidden layer and the output layer
 	delta_hidden_.resize( hidden_num_ + 1, 0);
-	delta_output_.resize( output_num_, 0);
+	delta_output_ = 0;
 
-	cout << "Three layers have been setup." << endl;
-	// initialize the weights
-	initialize_weights();
-}
-
-// each weight will assigned a small random number
-// each weight delta will be set to zero
-void NeuralNet::initialize_weights()
-{
-	cout << "Now initialize the weights of neural network..." << endl;
 	// set up the range of hidden and output layer weights
 	double range_hidden = 1 / sqrt( static_cast<double>(input_num_));
 	double range_output = 1 / sqrt( static_cast<double>(hidden_num_));
@@ -52,6 +47,7 @@ void NeuralNet::initialize_weights()
 	hidden_output_w_.resize(hidden_num_ + 1);
 	hidden_output_d_.resize(hidden_num_ + 1);
 
+	// Set each weight with a small random number and each weight change with zero
 	for(int i = 0; i <= input_num_; ++i)
 	{
 		for(int j = 0; j < hidden_num_; ++j)
@@ -63,18 +59,15 @@ void NeuralNet::initialize_weights()
 
 	for(int i = 0; i <= hidden_num_; ++i)
 	{
-       for(int j = 0; j < output_num_; ++j)
-       {
-    	   hidden_output_w_[i].push_back(static_cast<double>(rand()%100 + 1)/ 100 * 2 * range_output - range_output);
-    	   hidden_output_d_[i].push_back(0);
-       }
+    	   hidden_output_w_[i] = static_cast<double>(rand()%100 + 1)/ 100 * 2 * range_output - range_output;
+    	   hidden_output_d_[i] = 0;
 	}
 
 	cout << "The initialization of the weights have completed" << endl;
 }
 
 // load the weight vectors from an input file
-bool NeuralNet::load_weights(const string & input_filename)
+virtual bool NeuralNet::load_weights(const string & input_filename)
 {
   fstream input_file;
   input_file.open(input_filename.c_str(), std::ios::in);
@@ -83,11 +76,8 @@ bool NeuralNet::load_weights(const string & input_filename)
   // No. of input neurons  No. of hidden neurons No. of output neurons
   // then the weights from input to hidden layers
   // at last the weights from hidden to output layers
-
   if(input_file.is_open())
   {
-	  // check if the size of neural network is the same as the current one
-
 	  int input_num = 0;
 	  int output_num = 0;
 	  int hidden_num = 0;
@@ -96,15 +86,27 @@ bool NeuralNet::load_weights(const string & input_filename)
 	  input_file >> hidden_num;
 	  input_file >> output_num;
 
-	  if(input_num_ != input_num || hidden_num_ != hidden_num || output_num_ != output_num)
+	  // check if the hidden layer exists and only one output variable
+	  if(output_num != 1 || hidden_num == 0 )
 	  {
-		  cout << "Warning: the size of neural network has been changed, please verify." << endl;
+		  cout << "Error: the size of output neurons or hidden neurons is not right, load weights fails." << endl;
+		  return false;
 	  }
 
-	  // update the size of the current neural network
+	  // check if the size of neural network is the same as the current one
+	  if(input_num_ != input_num || hidden_num_ != hidden_num)
+	  {
+		  cout << "Error: the size of neural network has been changed, please verify." << endl;
+	  }
+
+	  // update the input and hidden layer
 	  set_input_num(input_num);
 	  set_hidden_num(hidden_num);
-	  set_output_num(output_num);
+	  input_layer_.resize(input_num_ + 1);
+	  hidden_layer_.resize(hidden_num_ + 1);
+
+	  // update the weights size
+	  initialize_weights();
 
 	  cout << "Read in the input layer to hidden layer weights..." << endl;
 
@@ -181,62 +183,29 @@ bool NeuralNet::save_weights(const string & output_filename)
 	}
 }
 
-// setter methods for size of three layers
-inline void NeuralNet::set_input_num(int input_num)
-{
-	input_num_ = input_num;
-}
-
-inline void NeuralNet::set_hidden_num(int hidden_num)
-{
-	hidden_num_ = hidden_num;
-}
-
-inline void NeuralNet::set_output_num(int output_num)
-{
-	output_num_ = output_num;
-}
-
-// getter methods for size of three layers
-inline int NeuralNet::get_input_num()
-{
-	return input_num_;
-}
-
-inline int NeuralNet::get_hidden_num()
-{
-	return hidden_num_;
-}
-
-inline int NeuralNet::get_output_num()
-{
-	return output_num_;
-}
-
-inline void NeuralNet::set_input_layer(const vector<double> &input_layer)
-{
-	if(input_layer_.size() != input_layer.size())
-		cout << "Warning: the size of input layer has been changed." << endl;
-
-	input_layer_ = input_layer;
-}
-
-inline vector<double> NeuralNet::get_output_layer()
-{
-	return output_layer_;
-}
-
-vector<vector<double> > NeuralNet::get_input_hidden_d()
+inline vector<vector<double> > NeuralNet::get_input_hidden_delta()
 {
 	return input_hidden_d_;
 }
 
-vector<vector<double> > NeuralNet::get_hidden_output_d()
+inline vector<vector<double> > NeuralNet::get_hidden_output_delta()
 {
 	return hidden_output_d_;
 }
 
-void NeuralNet::feed_forward(const vector<double> &input_layer)
+// setter methods for weights change from input to hidden and hidden to output layer
+inline void NeuralNet::set_input_hidden_delta(vector<vector<double> > &in_hid_d)
+{
+	input_hidden_d_ = in_hid_d;
+}
+
+inline void NeuralNet::set_hidden_output_delta(vector<vector<double> > &hid_out_d)
+{
+	hidden_output_d_ = hid_out_d;
+}
+
+// feed forward from input to hidden layers then hidden layers to output layers
+virtual void NeuralNet::feed_forward(const vector<double> &input_var)
 {
 	// set up the input layer
 	set_input_layer(input_layer);
@@ -254,16 +223,14 @@ void NeuralNet::feed_forward(const vector<double> &input_layer)
 	}
 
 	cout << " Setting up output layer from hidden layer ..." << endl;
-	for(int j =0; j < output_num_; ++j)
-	{
-		output_layer_[j] = 0;
-		for(int i = 0; i <= hidden_num_; ++i)
-		{
-			output_layer_[j] += hidden_layer_[i] * hidden_output_w_[i][j];
-		}
 
-		output_layer_[j] = active_func_(output_layer_[j]);
+	output_layer_ = 0;
+	for(int i = 0; i <= hidden_num_; ++i)
+	{
+		output_layer_ += hidden_layer_[i] * hidden_output_w_[i];
 	}
+
+	output_layer_ = active_func_(output_layer_);
 
 	cout << "Now the feed forward is done." << endl;
 
@@ -271,16 +238,14 @@ void NeuralNet::feed_forward(const vector<double> &input_layer)
 
 void NeuralNet::error_grad_output_hidden()
 {
-	// The error gradient is calculated as delta = d(ActiveFunc)/d(totalInput) * input[i] = d(tranFunc)/d(w[i][j])
+	// The error gradient is calculated as delta = d(ActiveFunc)/d(totalInput) * input[i] = d(tranFunc)/d(w[i])
 	cout << " Calculate the error gradient from output layer to hidden layer ..." << endl;
 
-	for(int i = 0; i < output_num_; ++i)
+	delta_output_ = active_func_.derivative(output_layer_);
+
+	for(int i = 0; i <= hidden_num_; ++i)
 	{
-		delta_output_[i] = active_func_.derivative(output_layer_[i]);
-		for(int j = 0; j <= hidden_num_; ++j)
-		{
-	      	hidden_output_d_[j][i] = delta_output_[i] * hidden_layer_[j];
-		}
+	    hidden_output_d_[i] = delta_output_ * hidden_layer_[i];
 	}
 }
 
@@ -311,12 +276,14 @@ void NeuralNet::error_grad_hidden_input()
 	}
 }
 
-// back propagation algorithm simply call two sub programs to calculate error gradient
+// back propagation algorithm simply call one two programs to calculate error gradient
 void NeuralNet::back_prop()
 {
 	cout << " Start back propagation ..." << endl;
+
 	error_grad_output_hidden();
 	error_grad_hidden_input();
+
 	cout << " The back propagation is done" << endl;
 }
 
@@ -338,12 +305,4 @@ void NeuralNet::update_weights(double learn_rate)
 			hidden_output_w_[i][j] -= learn_rate * hidden_output_d_[i][j];
 		}
 	}
-}
-
-void NeuralNet::update_weights(vector<vector<double> > &in_hid_delta, vector<vector<double> > &hid_out_delta, double learn_rate)
-{
-	input_hidden_d_ = in_hid_delta;
-	hidden_output_d_ = hid_out_delta;
-
-	update_weights(learn_rate);
 }
