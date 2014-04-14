@@ -47,7 +47,7 @@ virtual void BaseNet::initialize_weights()
 }
 
 // load the weight vectors from an input file
-bool BaseNet::load_weights(const string & input_filename)
+virtual bool BaseNet::load_weights(const string & input_filename)
 {
   fstream input_file;
   input_file.open(input_filename.c_str(), std::ios::in);
@@ -102,7 +102,7 @@ bool BaseNet::load_weights(const string & input_filename)
 }
 
 // save the current weights into a file
-bool BaseNet::save_weights(const string & output_filename)
+virtual bool BaseNet::save_weights(const string & output_filename)
 {
 	fstream output_file;
 	output_file.open(output_filename.c_str(), std::ios::out);
@@ -218,14 +218,14 @@ void BaseNet::error_grad_output_input()
 }
 
 // back propagation algorithm simply call one sub programs to calculate error gradient
-void BaseNet::back_prop()
+virtual void BaseNet::back_prop()
 {
 	cout << " Start back propagation ..." << endl;
 	error_grad_output_input();
 	cout << " The back propagation is done" << endl;
 }
 
-void BaseNet::update_weights(double learn_rate)
+virtual void BaseNet::update_weights(double learn_rate)
 {
 	for(int i = 0; i <= input_num_ ; ++i)
 	{

@@ -141,7 +141,7 @@ virtual bool NeuralNet::load_weights(const string & input_filename)
 }
 
 // save the current weights into a file
-bool NeuralNet::save_weights(const string & output_filename)
+virtual bool NeuralNet::save_weights(const string & output_filename)
 {
 	fstream output_file;
 	output_file.open(output_filename.c_str(), std::ios::out);
@@ -277,7 +277,7 @@ void NeuralNet::error_grad_hidden_input()
 }
 
 // back propagation algorithm simply call one two programs to calculate error gradient
-void NeuralNet::back_prop()
+virtual void NeuralNet::back_prop()
 {
 	cout << " Start back propagation ..." << endl;
 
@@ -288,7 +288,7 @@ void NeuralNet::back_prop()
 }
 
 // update the weights from the internal deltas
-void NeuralNet::update_weights(double learn_rate)
+virtual void NeuralNet::update_weights(double learn_rate)
 {
 	for(int i = 0; i <= input_num_; ++i)
 	{

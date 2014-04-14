@@ -57,7 +57,6 @@ public:
     virtual void back_prop();
 
     virtual void update_weights(double learn_rate);
-    virtual void update_weights(vector<vector<double> > &delta_in_hid, vector<double>  &delta_hid_in, double learn_rate);
 
 protected:
     // number of neurons in input, hidden and output layers
