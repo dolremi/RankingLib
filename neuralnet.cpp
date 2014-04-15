@@ -124,10 +124,7 @@ virtual bool NeuralNet::load_weights(const string & input_filename)
 	  // read in hidden to output layer weights then
 	  for( int i = 0; i <= hidden_num_; ++i)
 	  {
-		  for(int j = 0; j < output_num_; ++j)
-		  {
-			  input_file >> hidden_output_w_[i][j];
-		  }
+		  input_file >> hidden_output_w_[i];
 	  }
 
 	  cout << "The weights parameters have been loaded completely." << endl;
@@ -166,14 +163,10 @@ virtual bool NeuralNet::save_weights(const string & output_filename)
 
         for(int i = 0; i <= hidden_num_; ++i)
         {
-        	for(int j = 0; j < output_num_; ++j)
-        	{
-        		output_file << hidden_output_w_[i][j] << " ";
-        	}
-        	output_file << "\n";
+           output_file << hidden_output_w_[i] << " ";
         }
 
-        cout << "All the weights have been saved" << endl;
+        cout << "\nAll the weights have been saved" << endl;
 		return true;
 	}
 	else
@@ -188,7 +181,7 @@ inline vector<vector<double> > NeuralNet::get_input_hidden_delta()
 	return input_hidden_d_;
 }
 
-inline vector<vector<double> > NeuralNet::get_hidden_output_delta()
+inline vector<double>  NeuralNet::get_hidden_output_delta()
 {
 	return hidden_output_d_;
 }
@@ -199,7 +192,7 @@ inline void NeuralNet::set_input_hidden_delta(vector<vector<double> > &in_hid_d)
 	input_hidden_d_ = in_hid_d;
 }
 
-inline void NeuralNet::set_hidden_output_delta(vector<vector<double> > &hid_out_d)
+inline void NeuralNet::set_hidden_output_delta(vector<double>  &hid_out_d)
 {
 	hidden_output_d_ = hid_out_d;
 }
@@ -258,11 +251,7 @@ void NeuralNet::error_grad_hidden_input()
 	for(int i = 0; i <  hidden_num_; ++i)
 	{
 		delta_hidden_[i] = 0;
-		for(int j = 0; j < output_num_; ++j)
-		{
-		  	delta_hidden_[i] += hidden_output_w_[i][j] * delta_output_[j];
-		}
-
+		delta_hidden_[i] += hidden_output_w_[i] * delta_output_;
 		delta_hidden_[i] *= active_func_.derivative(hidden_layer_[i]);
 	}
 
@@ -300,9 +289,6 @@ virtual void NeuralNet::update_weights(double learn_rate)
 
 	for(int i = 0; i <= hidden_num_; ++i)
 	{
-		for(int j = 0; j < output_num_; ++j)
-		{
-			hidden_output_w_[i][j] -= learn_rate * hidden_output_d_[i][j];
-		}
+		hidden_output_w_[i] -= learn_rate * hidden_output_d_[i];
 	}
 }

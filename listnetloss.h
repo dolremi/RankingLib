@@ -26,9 +26,9 @@ protected:
 	vector<vector<double> > feature_lists_;
 	vector<double> results_;
 
-	// 3D vectors to store the delta weights between layers
+	//  vectors to store the delta weights between layers
 	vector<vector<vector<double> > > input_hidden_d_list_;
-	vector<vector<vector<double> > > hidden_output_d_list_;
+	vector<vector<double> >  hidden_output_d_list_;
 
     // 2D vectors to store the delta weights for simple neural net
 	vector<vector<double> > input_output_d_list_;

@@ -25,10 +25,10 @@ public:
 
 	// getter methods for weights change input to hidden and hidden to output layers
 	inline vector<vector<double> > get_input_hidden_delta();
-	inline vector<vector<double> > get_hidden_output_delta();
+	inline vector<double> get_hidden_output_delta();
 
 	inline void set_input_hidden_delta(vector<vector<double> > &in_hid_d);
-	inline void set_hidden_output_delta(vector<vector<double> > &hid_out_d);
+	inline void set_hidden_output_delta(vector<double> &hid_out_d);
 
 	// feed forward from input layer to hidden layer then to output layer
 	virtual void feed_forward(const vector<double> &input_var);

@@ -81,11 +81,12 @@ virtual void ListNetLoss::derivative()
 		 input_output_d_list_[i] = trained_net_.get_input_output_delta();
 	  }
 
+	  // now calculate the input to output weight changes
 	  for(int i = 0; i < results_.size(); ++i)
 	  {
 		  for(int j = 0; j < delta_w.size(); ++j)
 		  {
-			  delta_w[j] += (pred_partial_sum(i) * pred_list_[i]  - prob_list_[i] / prob_denorm_) * input_output_d_list_[i];
+			  delta_w[j] += (pred_partial_sum(i) * pred_list_[i]  - prob_list_[i] / prob_denorm_) * input_output_d_list_[i][j];
 		  }
 	  }
 
@@ -94,10 +95,49 @@ virtual void ListNetLoss::derivative()
   }
   else
   {
+    // now with more complex neural network
 
+	  //  vectors to store the weight changes from input to hidden layer and hidden layer to output layer
+     vector<vector<double> > delta_input_hidden(trained_net_.get_input_num() + 1);
+     vector<double>  delta_hidden_output(trained_net_.get_hidden_num() + 1,0);
+
+     input_hidden_d_list_.resize(results_.size());
+     hidden_output_d_list_.resize(results_.size());
+
+     // save the input to hidden and hidden to output weight changes for each document
+     for(int i = 0; i < input_output_d_list_.size(); ++i)
+     {
+     	trained_net_.feed_forward(feature_lists_[i]);
+     	trained_net_.back_prop();
+     	input_hidden_d_list_[i] = trained_net_.get_input_hidden_delta();
+     	hidden_output_d_list_[i] = trained_net_.get_hidden_output_delta();
+     }
+
+     // now calculate the hidden to output weight changes
+     for(int i = 0; i < results_.size(); ++i)
+     {
+    	for(int j = 0; j < delta_hidden_output.size(); ++j)
+    		  {
+    			  delta_hidden_output[j] += (pred_partial_sum(i) * pred_list_[i]  - prob_list_[i] / prob_denorm_) * hidden_output_d_list_[i][j];
+    		  }
+    	  }
+
+     trained_net_.set_hidden_output_delta(delta_hidden_output);
+
+     for(int i = 0; i < results_.size(); ++i)
+     {
+    	 for(int j = 0; j < delta_input_hidden.size(); ++j)
+    	 {
+    		 delta_input_hidden[i].resize(trained_net_.get_hidden_num() + 1, 0);
+    		 for(int k = 0; k <= trained_net_.get_hidden_num(); ++k)
+    		 {
+    			 delta_input_hidden[i][k] += (pred_partial_sum(i) * pred_list_[i] - prob_list_[i]/ prob_denorm_) * input_hidden_d_list_[i][j][k];
+    		 }
+    	 }
+     }
+
+     trained_net_.set_input_hidden_delta(delta_input_hidden);
   }
-
-
 }
 
 // it will save the predict score(exp) of each document into a list
