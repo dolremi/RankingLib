@@ -31,10 +31,24 @@ protected:
 	vector<vector<vector<double> > > hidden_output_d_list_;
 
     // 2D vectors to store the delta weights for simple neural net
-	vector<double> input_output_d_list_;
+	vector<vector<double> > input_output_d_list_;
 
 	// A function to calculate the output score from Neural network for each document
-	virtual void predict_score();
+	void predict_score();
+
+	// A function to calculate exp (actual score) for each document
+	void prob_score();
+
+	// calculate the sum of all predict score
+	void pred_score_sum();
+
+	// calculate the sum of all actual score
+	void prob_score_sum();
+
+	// calculate the partial sum of the predict score given the position
+	double pred_partial_sum(int i );
+
+	double prob_partial_sum(int i );
 
 	// variable to store the sum of the exp(desired_score) or denominator of the top prob
 	double prob_denorm_;
