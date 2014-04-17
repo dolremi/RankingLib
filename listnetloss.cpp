@@ -11,7 +11,7 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-ListNetLoss::ListNetLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &result, bool simple): trained_net_(input_net),
+ListLoss::ListLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &result, bool simple): trained_net_(input_net),
 																												feature_lists_(feature_lists),
 	                                                                                                             results_(result),
 	                                                                                                             if_simple_(simple)
@@ -33,7 +33,7 @@ ListNetLoss::ListNetLoss(NeuralNet &input_net, vector<vector<double> > &feature_
 }
 
 // Calculation of cross entropy loss function
-virtual double ListNetLoss::operator()()
+virtual double ListLoss::operator()()
 {
 
 	// calculate exp value for prediction score
@@ -55,7 +55,7 @@ virtual double ListNetLoss::operator()()
 	return results;
 }
 
-virtual void ListNetLoss::derivative()
+virtual void ListLoss::derivative()
 {
 
 	// calculate exp value for prediction score
@@ -141,7 +141,7 @@ virtual void ListNetLoss::derivative()
 }
 
 // it will save the predict score(exp) of each document into a list
-void ListNetLoss::predict_score()
+void ListLoss::predict_score()
 {
 	for(int i = 0; i < results_.size(); ++i)
 	{
@@ -151,7 +151,7 @@ void ListNetLoss::predict_score()
 }
 
 // it will save the actual score(exp) of each document into a list
-void ListNetLoss::prob_score()
+void ListLoss::prob_score()
 {
 	for(int i = 0; i < results_.size(); ++i)
 	{
@@ -159,7 +159,7 @@ void ListNetLoss::prob_score()
 	}
 }
 
-void ListNetLoss::prob_score_sum()
+void ListLoss::prob_score_sum()
 {
 	for(int i = 0; i < prob_list_.size(); ++i)
 	{
@@ -167,7 +167,7 @@ void ListNetLoss::prob_score_sum()
 	}
 }
 
-void ListNetLoss::pred_score_sum()
+void ListLoss::pred_score_sum()
 {
 	for(int i = 0; i < pred_list_.size(); ++i)
 
@@ -177,7 +177,7 @@ void ListNetLoss::pred_score_sum()
 }
 
 // assume the pred_list has been created
-double ListNetLoss::pred_partial_sum(int index)
+double ListLoss::pred_partial_sum(int index)
 {
 	double sum = 0;
 
@@ -189,7 +189,7 @@ double ListNetLoss::pred_partial_sum(int index)
 }
 
 // assume the prob_list has been created
-double ListNetLoss::prob_partial_sum(int index)
+double ListLoss::prob_partial_sum(int index)
 {
 	double sum = 0;
 

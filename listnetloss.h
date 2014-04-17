@@ -14,9 +14,9 @@
 
 using std::vector;
 
-class ListNetLoss {
+class ListLoss {
 public:
-	ListNetLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &results, bool simple);
+	ListLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &results, bool simple);
 
 	virtual double operator()();
 	virtual void derivative();
