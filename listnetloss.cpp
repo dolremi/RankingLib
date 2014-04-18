@@ -11,7 +11,7 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-ListLoss::ListLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &result, bool simple): trained_net_(input_net),
+ListLoss::ListLoss(BaseNet &input_net, vector<vector<double> > &feature_lists, vector<double> &result, bool simple): trained_net_(input_net),
 																												feature_lists_(feature_lists),
 	                                                                                                             results_(result),
 	                                                                                                             if_simple_(simple)
@@ -109,8 +109,8 @@ virtual void ListLoss::derivative()
      {
      	trained_net_.feed_forward(feature_lists_[i]);
      	trained_net_.back_prop();
-     	input_hidden_d_list_[i] = trained_net_.get_input_hidden_delta();
-     	hidden_output_d_list_[i] = trained_net_.get_hidden_output_delta();
+     	input_hidden_d_list_[i] = dynamic_cast<NeuralNet>(trained_net_).get_input_hidden_delta();
+     	hidden_output_d_list_[i] = dynamic_cast<NeuralNet>(trained_net_).get_hidden_output_delta();
      }
 
      // now calculate the hidden to output weight changes
@@ -122,7 +122,7 @@ virtual void ListLoss::derivative()
     		  }
     	  }
 
-     trained_net_.set_hidden_output_delta(delta_hidden_output);
+     dynamic_cast<NeuralNet>(trained_net_).set_hidden_output_delta(delta_hidden_output);
 
      for(int i = 0; i < results_.size(); ++i)
      {
@@ -136,7 +136,7 @@ virtual void ListLoss::derivative()
     	 }
      }
 
-     trained_net_.set_input_hidden_delta(delta_input_hidden);
+     dynamic_cast<NeuralNet>(trained_net_).set_input_hidden_delta(delta_input_hidden);
   }
 }
 

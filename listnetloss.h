@@ -16,13 +16,14 @@ using std::vector;
 
 class ListLoss {
 public:
-	ListLoss(NeuralNet &input_net, vector<vector<double> > &feature_lists, vector<double> &results, bool simple);
+	ListLoss(BaseNet &input_net, vector<vector<double> > &feature_lists, vector<double> &results, bool simple);
 
 	virtual double operator()();
 	virtual void derivative();
+	void set_trained_net(BaseNet &input_net);
 
 protected:
-	NeuralNet trained_net_;
+	BaseNet trained_net_;
 	vector<vector<double> > feature_lists_;
 	vector<double> results_;
 

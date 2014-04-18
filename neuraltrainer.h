@@ -15,6 +15,11 @@
 class NeuralTrainer {
 public:
 	NeuralTrainer(BaseNet &input_net, ListLoss &input_loss, bool base_iter, double lr , double acc , long max_iter);
+	void set_stop_parameters(bool base_iter, double acc, long max_iter);
+	void set_trained_model(BaseNet &input_model);
+	BaseNet get_trained_model();
+
+	BaseNet train_data(vector<vector<double> > &feature_list, vector<double> &score);
 
 private:
 
