@@ -1,13 +1,13 @@
 /*
  * neuraltrainer.cpp
  *
- *  Created on: Apr 16, 2014
- *      Author: debian
+ *  The trainer class to train the data set.
+ *
  */
 
 #include "neuraltrainer.h"
 
-NeuralTrainer::NeuralTrainer(BaseNet &input_net, ListLoss &input_loss, double lr, double acc, long max_iter,double based_iter): trained_model_(input_net),
+NeuralTrainer::NeuralTrainer(BaseNet &input_net, ListLoss &input_loss, bool based_iter, double lr = 0.01, double acc = 0.01, long max_iter = 500): trained_model_(input_net),
 																						loss_func_(input_loss),
 																						learn_rate_(lr),
 																						current_error_(0),

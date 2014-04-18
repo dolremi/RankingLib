@@ -1,8 +1,8 @@
 /*
  * neuraltrainer.h
  *
- *  Created on: Apr 16, 2014
- *      Author: debian
+ *  trainer class to train the data set
+ *
  */
 
 #ifndef NEURALTRAINER_H_
@@ -14,11 +14,14 @@
 #include <string>
 class NeuralTrainer {
 public:
-	NeuralTrainer(BaseNet &input_net, ListLoss &input_loss, double lr, double acc = 0.01, long max_iter = 500, bool based_iter);
+	NeuralTrainer(BaseNet &input_net, ListLoss &input_loss, bool base_iter, double lr , double acc , long max_iter);
 
 private:
+
+	// Neural network based model
 	BaseNet trained_model_;
 
+	// listwise loss function
 	ListLoss loss_func_;
 
 	// learning parameter
