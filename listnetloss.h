@@ -20,7 +20,10 @@ public:
 
 	virtual double operator()();
 	virtual void derivative();
+
+	// setter and getter for trained net
 	void set_trained_net(BaseNet &input_net);
+	BaseNet get_trained_net();
 
 protected:
 	BaseNet trained_net_;

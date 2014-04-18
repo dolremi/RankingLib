@@ -32,6 +32,17 @@ ListLoss::ListLoss(BaseNet &input_net, vector<vector<double> > &feature_lists, v
 
 }
 
+// Setter method for trained net
+void ListLoss::set_trained_net(BaseNet &input_net)
+{
+	trained_net_ = input_net;
+}
+
+BaseNet ListLoss::get_trained_net()
+{
+	return trained_net_;
+}
+
 // Calculation of cross entropy loss function
 virtual double ListLoss::operator()()
 {

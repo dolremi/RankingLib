@@ -51,13 +51,17 @@ BaseNet NeuralTrainer::get_trained_model()
 	return trained_model_;
 }
 
+// function to train the data via gradient descent
 BaseNet NeuralTrainer::train_data(vector<vector<double> > &feature_list, vector<double> &score)
 {
 	while(get_stop_condition())
 	{
 		for(int i = 0; i < score.size(); ++i)
 		{
-
+			loss_func_.set_trained_net(trained_model_);
+			loss_func_();
+			trained_model_ = loss_func_.get_trained_net();
+			trained_model_.update_weights(learn_rate_);
 		}
 	}
 
